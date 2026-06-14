@@ -23,6 +23,11 @@ t_token *lexer(char *line)
         else
         {
             word = read_word(line, &i);
+            if (!word)
+            {
+                free_tokens(list);
+                return (NULL);
+            }
             add_token(&list, word, WORD);
             free(word);
         }

@@ -1,3 +1,5 @@
+#include "../include/minishell.h"
+
 char *readprompt()
 {
     char *line;

@@ -15,6 +15,14 @@ int main(int argc, char **argv)
         }
         if(line[0] != '\0')
             add_history(line);
+        t_token *tokens = lexer(line);
+        if (!tokens)
+            printf("Syntax error: unclosed quote\n");
+        else
+        {
+            print_tokens(tokens); // debug
+            free_tokens(tokens);
+        }
         free(line);
     }
 }
