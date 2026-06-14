@@ -2,6 +2,8 @@
 // Il va falloir commencer avec ça. Mettre tout en ordre, et déjà commencer par démarer le truc
 // Normalement, la plupart des fonctions là ne vont pas servir à grand chose. Parce qu'on doit être capable d'executer avec une seule commande. Là tout ça, ça ne sert que dans le cas ou on a 2 commandes ou plus.
 // Pas mal de trucs vont crash là dedans.
+// Le pipex pour l'instant marche toujours avec une structure t_pipex. Il va falloir la changer en t_minishell. ça va être assez galère, d'autant que j'ai modifié le pipex en despi, mais je n'ai pas tout revu, tout recompris. J'ai essayé d'intégrer les builtins.
+// Spoiler alert, ça n'a pas marché
 
 #include "pipex.h"
 
