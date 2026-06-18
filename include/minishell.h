@@ -58,4 +58,12 @@ typedef struct s_pipex
     char   **envp;
 }   t_pipex;
 
+typedef struct s_cmd
+{
+    char            **args;
+    int             fd_in;
+    int             fd_out;
+    struct s_cmd    *next;
+}   t_cmd;
+
 #endif
