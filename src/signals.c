@@ -2,9 +2,9 @@
 
 int g_signal = 0;
 
-void    handler_sigint(int sig)
+void handler_sigint(int sig)
 {
-    (void) sig;
+    (void)sig;
     g_signal = SIGINT;
     rl_on_new_line();
     rl_replace_line("", 0);
@@ -12,14 +12,8 @@ void    handler_sigint(int sig)
     rl_redisplay();
 }
 
-void    handler_sigquit(int sig)
-{
-    (void) sig;
-    g_signal = SIGQUIT;
-}
-
-void init_signals()
+void init_signals(void)
 {
     signal(SIGINT, handler_sigint);
-    signal(SIGQUIT, handler_sigquit);
+    signal(SIGQUIT, SIG_IGN);
 }

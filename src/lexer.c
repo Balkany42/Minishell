@@ -5,32 +5,41 @@ t_token *lexer(char *line)
     t_token *list = NULL;
     int     i = 0;
     t_tokentype type;
-    char    *word;
+
+    if (!line || line[0] == '\0')
+        return NULL;
 
     while (line[i])
     {
         i = skip_spaces(line, i);
         if (!line[i])
             break;
+
         type = is_operator(line, i);
+
         if (type != WORD)
         {
+            char *tmp;
+
             if (type == HEREDOC || type == APPEND)
-                add_token(&list, ft_substr(line, i, 2), type), i += 2;
+            {
+                tmp = ft_substr(line, i, 2);
+                add_token_with_quote(&list, tmp, type, NO_QUOTE);
+                free(tmp);
+                i += 2;
+            }
             else
-                add_token(&list, ft_substr(line, i, 1), type), i += 1;
+            {
+                tmp = ft_substr(line, i, 1);
+                add_token_with_quote(&list, tmp, type, NO_QUOTE);
+                free(tmp);
+                i += 1;
+            }
         }
         else
         {
-            word = read_word(line, &i);
-            if (!word)
-            {
-                free_tokens(list);
-                return (NULL);
-            }
-            add_token(&list, word, WORD);
-            free(word);
+            read_word(&list, line, &i);
         }
     }
-    return (list);
+    return list;
 }

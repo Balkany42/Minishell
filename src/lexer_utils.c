@@ -7,8 +7,25 @@ int skip_spaces(char *s, int i)
     return(i);
 }
 
-t_tokentype   is_operator(char *s, int i)
+t_tokentype is_operator(char *s, int i)
 {
+    // 🔥 Tous les tokens interdits dans minishell
+    if (s[i] == '&' && s[i + 1] == '&')
+        return (INVALID);      // &&
+    if (s[i] == '|' && s[i + 1] == '|')
+        return (INVALID);      // ||
+    if (s[i] == ';' && s[i + 1] == ';')
+        return (INVALID);      // ;;
+    if (s[i] == '|' && s[i + 1] == '&')
+        return (INVALID);      // |&
+    if (s[i] == '&')
+        return (INVALID);      // &
+    if (s[i] == ';')
+        return (INVALID);      // ;
+    if (s[i] == '(' || s[i] == ')')
+    return (INVALID);
+
+    // 🔥 Opérateurs valides
     if (s[i] == '|')
         return (PIPE);
     if (s[i] == '<' && s[i + 1] == '<')
@@ -19,8 +36,10 @@ t_tokentype   is_operator(char *s, int i)
         return (REDIR_IN);
     if (s[i] == '>')
         return (REDIR_OUT);
+
     return (WORD);
 }
+
 t_token *token_new(char *value, t_tokentype type)
 {
     t_token *new;
@@ -53,49 +72,61 @@ void add_token(t_token **list, char *value, t_tokentype type)
     tmp->next = new;
 }
 
-char *read_word(char *s, int *i)
+void read_word(t_token **list, char *s, int *i)
 {
-    char    *result = ft_strdup("");
-    char    *tmp;
-    char    *part;
-
-    while (s[*i] &&
-           s[*i] != ' ' &&
-           s[*i] != '\t' &&
-           is_operator(s, *i) == WORD)
+    while (s[*i] && s[*i] != ' ' && s[*i] != '\t' && is_operator(s, *i) == WORD)
     {
         if (s[*i] == '\'')
         {
-            part = read_single_quote(s, i);
-            if (!part)
-                return (NULL);
+            char *part = read_single_quote(s, i);
+            add_token_with_quote(list, part, WORD, SINGLE_QUOTE);
+            free(part);
         }
         else if (s[*i] == '"')
         {
-            part = read_double_quote(s, i);
-            if (!part)
-                return (NULL);
+            char *part = read_double_quote(s, i);
+            add_token_with_quote(list, part, WORD, DOUBLE_QUOTE);
+            free(part);
         }
         else
         {
             int start = *i;
-            while (s[*i] &&
-                   s[*i] != ' ' &&
-                   s[*i] != '\t' &&
-                   s[*i] != '\'' &&
-                   s[*i] != '"' &&
-                   is_operator(s, *i) == WORD)
+            while (s[*i] && s[*i] != ' ' && s[*i] != '\t'
+                   && s[*i] != '\'' && s[*i] != '"'
+                   && is_operator(s, *i) == WORD)
                 (*i)++;
-            part = ft_substr(s, start, *i - start);
-        }
 
-        tmp = result;
-        result = ft_strjoin(result, part);
-        free(tmp);
-        free(part);
+            char *part = ft_substr(s, start, *i - start);
+            add_token_with_quote(list, part, WORD, NO_QUOTE);
+            free(part);
+        }
     }
-    return (result);
 }
+
+
+void add_token_with_quote(t_token **list, char *value, t_tokentype type, t_quote q)
+{
+    t_token *new = malloc(sizeof(t_token));
+    if (!new)
+        return;
+
+    new->value = ft_strdup(value);
+    new->type = type;
+    new->quote_type = q;
+    new->next = NULL;
+
+    if (!*list)
+    {
+        *list = new;
+        return;
+    }
+
+    t_token *tmp = *list;
+    while (tmp->next)
+        tmp = tmp->next;
+    tmp->next = new;
+}
+
 
 
 char *read_single_quote(char *s, int *i)
@@ -147,13 +178,3 @@ void free_tokens(t_token *list)
         list = tmp;
     }
 }
-// Fonction pour pourvoir print les tokens. Sert à debugger.
-
-// void print_tokens(t_token *list)
-// {
-//     while (list)
-//     {
-//         printf("TYPE=%d | VALUE=\"%s\"\n", list->type, list->value);
-//         list = list->next;
-//     }
-// }
