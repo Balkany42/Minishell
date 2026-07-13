@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   006_lexer_2.c                                      :+:      :+:    :+:   */
+/*   007_lexer_2.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mgrager <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/12 22:22:15 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/12 22:56:41 by mgrager          ###   ########.fr       */
+/*   Updated: 2026/07/13 23:39:22 by mgrager          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,26 +75,20 @@ void	add_token(t_token **list, char *value, t_tokentype type)
 
 void	read_word(t_token **list, char *s, int *i)
 {
-	char	*part;
-
 	while (s[*i] && s[*i] != ' ' && s[*i] != '\t'
 		&& is_operator(s, *i) == WORD)
 	{
 		if (s[*i] == '\'')
 		{
-			part = read_single_quote(s, i);
-			add_token_with_quote(list, part, WORD, SINGLE_QUOTE);
+			if (!handle_single_quote_part(list, s, i))
+				return ;
 		}
 		else if (s[*i] == '"')
 		{
-			part = read_double_quote(s, i);
-			add_token_with_quote(list, part, WORD, DOUBLE_QUOTE);
+			if (!handle_double_quote_part(list, s, i))
+				return ;
 		}
 		else
-		{
-			part = read_unquoted(s, i);
-			add_token_with_quote(list, part, WORD, NO_QUOTE);
-		}
-		free(part);
+			handle_unquoted_part(list, s, i);
 	}
 }

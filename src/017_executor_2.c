@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   014_executor_2.c                                   :+:      :+:    :+:   */
+/*   017_executor_2.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mgrager <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 01:26:48 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/13 01:29:35 by mgrager          ###   ########.fr       */
+/*   Updated: 2026/07/13 23:31:59 by mgrager          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,24 @@ void	exec_single(t_cmd *cmd, t_minishell *sh)
 
 void	exec_single_builtin(t_cmd *cmd, t_minishell *sh)
 {
+	int	saved_stdin;
+	int	saved_stdout;
+
+	saved_stdin = dup(STDIN_FILENO);
+	saved_stdout = dup(STDOUT_FILENO);
 	if (apply_redirs(cmd) == -1)
+	{
+		dup2(saved_stdin, STDIN_FILENO);
+		dup2(saved_stdout, STDOUT_FILENO);
+		close(saved_stdin);
+		close(saved_stdout);
 		return ;
+	}
 	exec_builtin(cmd, sh);
+	dup2(saved_stdin, STDIN_FILENO);
+	dup2(saved_stdout, STDOUT_FILENO);
+	close(saved_stdin);
+	close(saved_stdout);
 }
 
 void	exec_single_child(t_cmd *cmd, t_minishell *sh)
@@ -45,7 +60,7 @@ void	exec_single_child(t_cmd *cmd, t_minishell *sh)
 
 void	exec_single_parent(pid_t pid, t_minishell *sh)
 {
-	int status;
+	int	status;
 
 	signal(SIGINT, SIG_IGN);
 	signal(SIGQUIT, SIG_IGN);

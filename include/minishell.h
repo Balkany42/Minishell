@@ -6,7 +6,7 @@
 /*   By: mgrager <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 15:55:54 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/13 16:08:57 by mgrager          ###   ########.fr       */
+/*   Updated: 2026/07/13 23:42:32 by mgrager          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,8 +92,8 @@ int			env_count(t_env *env);
 char		*env_build_entry(t_env *var);
 char		*readprompt(void);
 int			is_blank_line(char *s);
-void	handler_sigint(int sig);
-void	init_signals(void);
+void		handler_sigint(int sig);
+void		init_signals(void);
 t_token		*lexer(char *line);
 t_token		*lexer_loop(char *line);
 int			handle_operator(t_token **list, char *line, int i,
@@ -210,8 +210,11 @@ char		*ft_substr(const char *s, unsigned int start, size_t len);
 char		*ft_substr_copy(const char *s, unsigned int start, size_t len);
 char		*ft_itoa(int n);
 int			ft_itoa_count_digits(long nb);
-void    ft_itoa_fill(char *str, long nb, int len);
+void		ft_itoa_fill(char *str, long nb, int len);
 size_t		ft_strlen(const char *s);
 int			count_digits(int n);
+int			handle_single_quote_part(t_token **list, char *s, int *i);
+int			handle_double_quote_part(t_token **list, char *s, int *i);
+void		handle_unquoted_part(t_token **list, char *s, int *i);
 
 #endif

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   029_utils_5.c                                      :+:      :+:    :+:   */
+/*   032_utils_5.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mgrager <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 08:06:54 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/13 08:08:23 by mgrager          ###   ########.fr       */
+/*   Updated: 2026/07/13 23:40:55 by mgrager          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,4 +35,45 @@ int	count_digits(int n)
 		count++;
 	}
 	return (count);
+}
+
+int	handle_single_quote_part(t_token **list, char *s, int *i)
+{
+	char	*part;
+
+	part = read_single_quote(s, i);
+	if (!part)
+	{
+		free_tokens(*list);
+		*list = NULL;
+		return (0);
+	}
+	add_token_with_quote(list, part, WORD, SINGLE_QUOTE);
+	free(part);
+	return (1);
+}
+
+int	handle_double_quote_part(t_token **list, char *s, int *i)
+{
+	char	*part;
+
+	part = read_double_quote(s, i);
+	if (!part)
+	{
+		free_tokens(*list);
+		*list = NULL;
+		return (0);
+	}
+	add_token_with_quote(list, part, WORD, DOUBLE_QUOTE);
+	free(part);
+	return (1);
+}
+
+void	handle_unquoted_part(t_token **list, char *s, int *i)
+{
+	char	*part;
+
+	part = read_unquoted(s, i);
+	add_token_with_quote(list, part, WORD, NO_QUOTE);
+	free(part);
 }

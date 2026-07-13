@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   010_parser_2.c                                     :+:      :+:    :+:   */
+/*   011_parser_2.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mgrager <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 00:33:23 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/13 00:39:17 by mgrager          ###   ########.fr       */
+/*   Updated: 2026/07/13 23:32:44 by mgrager          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,6 @@ t_cmd	*parse_command(t_token **list, t_minishell *sh)
 			tok = parse_redirection_token(cmd, tok, sh);
 		else
 			return (free_cmds(cmd), NULL);
-		//if (!tok)
-			//return (NULL);
 	}
 	*list = tok;
 	return (cmd);

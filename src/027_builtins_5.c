@@ -29,7 +29,7 @@ void	export_process_one(char *arg, t_minishell *sh)
 	}
 	if (!eq)
 	{
-		env_set(&sh->env, key, NULL);
+		env_set(&sh->env, key, "");
 		free(key);
 		return ;
 	}
@@ -59,7 +59,7 @@ void	env_set(t_env **env, char *key, char *value)
 	if (value)
 		new->value = ft_strdup(value);
 	else
-		new->value = NULL;
+		new->value = "";
 	new->next = *env;
 	*env = new;
 }
@@ -77,7 +77,7 @@ int	env_set_update(t_env *env, char *key, char *value)
 			if (value)
 				e->value = ft_strdup(value);
 			else
-				e->value = NULL;
+				e->value = ft_strdup("");
 			return (1);
 		}
 		e = e->next;

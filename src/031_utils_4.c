@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   028_utils_4.c                                      :+:      :+:    :+:   */
+/*   031_utils_4.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mgrager <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 08:01:57 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/13 08:06:36 by mgrager          ###   ########.fr       */
+/*   Updated: 2026/07/13 23:24:24 by mgrager          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,11 +96,12 @@ int	ft_itoa_count_digits(long nb)
 	}
 	return (count);
 }
-void    ft_itoa_fill(char *str, long nb, int len)
+
+void	ft_itoa_fill(char *str, long nb, int len)
 {
-    while (nb > 0)
-    {
-        str[--len] = (nb % 10) + '0';
-        nb /= 10;
-    }
+	while (nb > 0)
+	{
+		str[--len] = (nb % 10) + '0';
+		nb /= 10;
+	}
 }

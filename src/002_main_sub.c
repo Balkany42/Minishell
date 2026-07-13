@@ -6,7 +6,7 @@
 /*   By: mgrager <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/12 20:57:36 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/12 21:42:32 by mgrager          ###   ########.fr       */
+/*   Updated: 2026/07/13 23:24:54 by mgrager          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,16 +52,13 @@ void	process_line(char *line, t_minishell *sh)
 		return ;
 	}
 	cmds = parser(tokens, sh);
-	printf("parser called\n");
 	free_tokens(tokens);
 	if (!cmds)
 	{
-		printf("executor called\n");
 		free (line);
 		return ;
 	}
 	executor(cmds, sh);
-	printf("executor called\n");
 	free_cmds(cmds);
 	free(line);
 	free_tab(sh->envp);
@@ -75,6 +72,7 @@ int	handle_lexer_and_syntax(char *line, t_token **tokens, t_minishell *sh)
 	{
 		if (line[0] != '\0' && line[0] != ' ' && line[0] != '\t')
 			printf("Syntax error: unclosed quote\n");
+		sh->exit_status = 2;
 		return (0);
 	}
 	if (check_syntax_errors(*tokens))
