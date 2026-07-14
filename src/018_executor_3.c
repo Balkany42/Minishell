@@ -12,41 +12,79 @@
 
 #include "../include/minishell.h"
 
-void	exec_pipeline(t_cmd *cmds, t_minishell *sh)
-{
-	int		prev_fd;
-	int		pipefd[2];
-	pid_t	last_pid;
-	pid_t	pid;
+// void	exec_pipeline(t_cmd *cmds, t_minishell *sh)
+// {
+// 	int		prev_fd;
+// 	int		pipefd[2];
+// 	pid_t	last_pid;
+// 	pid_t	pid;
 
-	prev_fd = -1;
-	last_pid = -1;
-	while (cmds)
-	{
-		if (cmds->next && pipe(pipefd) == -1)
-			return ;
-		pid = fork();
-		if (pid == -1)
-			return ;
-		if (pid == 0)
-			pipeline_child(cmds, sh, prev_fd, pipefd);
-		else
-		{
-			if (!cmds->next)
-				last_pid = pid;
-			pipeline_parent(cmds, &prev_fd, pipefd);
-			cmds = cmds->next;
-		}
-	}
-	return (pipeline_wait_last(last_pid, sh), init_signals());
+// 	prev_fd = -1;
+// 	last_pid = -1;
+// 	while (cmds)
+// 	{
+// 		if (cmds->next && pipe(pipefd) == -1)
+// 			return ;
+// 		pid = fork();
+// 		if (pid == -1)
+// 			return ;
+// 		if (pid == 0)
+// 			pipeline_child(cmds, sh, prev_fd, pipefd);
+// 		else
+// 		{
+// 			if (!cmds->next)
+// 				last_pid = pid;
+// 			pipeline_parent(cmds, &prev_fd, pipefd);
+// 			cmds = cmds->next;
+// 		}
+// 	}
+// 	return (pipeline_wait_last(last_pid, sh), init_signals());
+// }
+
+void    exec_pipeline(t_cmd *cmds, t_minishell *sh)
+{
+    int     prev_fd;
+    int     pipefd[2];
+    pid_t   last_pid;
+    pid_t   pid;
+
+    prev_fd = -1;
+    last_pid = -1;
+
+    while (cmds)
+    {
+        if (cmds->next && pipe(pipefd) == -1)
+            return ;
+
+        pid = fork();
+        if (pid == -1)
+            return ;
+
+        if (pid == 0)
+            pipeline_child(cmds, sh, prev_fd, pipefd);
+        else
+        {
+            // ✔ IGNORER LES SIGNAUX DANS LE PARENT ICI
+            signal(SIGINT, SIG_IGN);
+            signal(SIGQUIT, SIG_IGN);
+
+            if (!cmds->next)
+                last_pid = pid;
+
+            pipeline_parent(cmds, &prev_fd, pipefd);
+            cmds = cmds->next;
+        }
+    }
+
+    pipeline_wait_last(last_pid, sh);
+    init_signals();
 }
+
 
 void	pipeline_child(t_cmd *cmd, t_minishell *sh, int prev_fd, int pipefd[2])
 {
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
-	if (apply_redirs(cmd) == -1)
-		exit(1);
 	if (prev_fd != -1)
 	{
 		dup2(prev_fd, STDIN_FILENO);
@@ -58,6 +96,8 @@ void	pipeline_child(t_cmd *cmd, t_minishell *sh, int prev_fd, int pipefd[2])
 		dup2(pipefd[1], STDOUT_FILENO);
 		close(pipefd[1]);
 	}
+	if (apply_redirs(cmd) == -1)
+		exit(1);
 	if (is_builtin(cmd->args[0]))
 	{
 		exec_builtin(cmd, sh);
@@ -69,8 +109,8 @@ void	pipeline_child(t_cmd *cmd, t_minishell *sh, int prev_fd, int pipefd[2])
 
 void	pipeline_parent(t_cmd *cmd, int *prev_fd, int pipefd[2])
 {
-	signal(SIGINT, SIG_IGN);
-	signal(SIGQUIT, SIG_IGN);
+	// signal(SIGINT, SIG_IGN);
+	// signal(SIGQUIT, SIG_IGN);
 	if (*prev_fd != -1)
 		close(*prev_fd);
 	if (cmd->next)
