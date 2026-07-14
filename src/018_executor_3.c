@@ -80,17 +80,20 @@ void	pipeline_parent(t_cmd *cmd, int *prev_fd, int pipefd[2])
 	}
 }
 
-void	pipeline_wait_last(pid_t last_pid, t_minishell *sh)
+void    pipeline_wait_last(pid_t last_pid, t_minishell *sh)
 {
-	int	status;
+    int     status;
+    pid_t   p;
 
-	while (wait(NULL) > 0)
-		;
-	if (last_pid != -1 && waitpid(last_pid, &status, 0) != -1)
-	{
-		if (WIFEXITED(status))
-			sh->exit_status = WEXITSTATUS(status);
-		else if (WIFSIGNALED(status))
-			sh->exit_status = 128 + WTERMSIG(status);
-	}
+    while ((p = waitpid(-1, &status, 0)) > 0)
+    {
+        if (p == last_pid)
+        {
+            if (WIFEXITED(status))
+                sh->exit_status = WEXITSTATUS(status);
+            else if (WIFSIGNALED(status))
+                sh->exit_status = 128 + WTERMSIG(status);
+        }
+    }
 }
+

@@ -21,5 +21,5 @@ int	main(int argc, char **argv, char **envp)
 	init_minishell(&sh, envp);
 	run_minishell_loop(&sh);
 	cleanup_minishell(&sh);
-	return (0);
+	exit(sh.exit_status);
 }
