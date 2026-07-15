@@ -81,31 +81,87 @@ void    exec_pipeline(t_cmd *cmds, t_minishell *sh)
 }
 
 
-void	pipeline_child(t_cmd *cmd, t_minishell *sh, int prev_fd, int pipefd[2])
+// void	pipeline_child(t_cmd *cmd, t_minishell *sh, int prev_fd, int pipefd[2])
+// {
+// 	signal(SIGINT, SIG_DFL);
+// 	signal(SIGQUIT, SIG_DFL);
+// 	if (prev_fd != -1)
+// 	{
+// 		dup2(prev_fd, STDIN_FILENO);
+// 		close(prev_fd);
+// 	}
+// 	if (cmd->next)
+// 	{
+// 		close(pipefd[0]);
+// 		dup2(pipefd[1], STDOUT_FILENO);
+// 		close(pipefd[1]);
+// 	}
+// 	if (apply_redirs(cmd) == -1)
+// 		exit(1);
+// 	if (is_builtin(cmd->args[0]))
+// 	{
+// 		exec_builtin(cmd, sh);
+// 		exit(sh->exit_status);
+// 	}
+// 	exec_external(cmd, sh);
+// 	exit(127);
+// }
+
+void    pipeline_child(t_cmd *cmd, t_minishell *sh, int prev_fd, int pipefd[2])
 {
-	signal(SIGINT, SIG_DFL);
-	signal(SIGQUIT, SIG_DFL);
-	if (prev_fd != -1)
-	{
-		dup2(prev_fd, STDIN_FILENO);
-		close(prev_fd);
-	}
-	if (cmd->next)
-	{
-		close(pipefd[0]);
-		dup2(pipefd[1], STDOUT_FILENO);
-		close(pipefd[1]);
-	}
-	if (apply_redirs(cmd) == -1)
-		exit(1);
-	if (is_builtin(cmd->args[0]))
-	{
-		exec_builtin(cmd, sh);
-		exit(sh->exit_status);
-	}
-	exec_external(cmd, sh);
-	exit(127);
+    signal(SIGINT, SIG_DFL);
+    signal(SIGQUIT, SIG_DFL);
+
+    // 🔹 Commande vide avec redirections (cas du heredoc après un pipe)
+    if (!cmd->args || !cmd->args[0])
+    {
+        if (cmd->redirs)
+        {
+            if (apply_redirs(cmd) == -1)
+                exit(1);
+
+            // 🔥 Copie STDIN → STDOUT pour écrire le heredoc dans le fichier
+            char buffer[4096];
+            ssize_t n;
+
+            while ((n = read(STDIN_FILENO, buffer, sizeof(buffer))) > 0)
+                write(STDOUT_FILENO, buffer, n);
+        }
+        exit(0);
+    }
+
+    // 🔹 Gestion du pipe en entrée
+    if (prev_fd != -1)
+    {
+        dup2(prev_fd, STDIN_FILENO);
+        close(prev_fd);
+    }
+
+    // 🔹 Gestion du pipe en sortie
+    if (cmd->next)
+    {
+        close(pipefd[0]);
+        dup2(pipefd[1], STDOUT_FILENO);
+        close(pipefd[1]);
+    }
+
+    // 🔹 Redirections normales
+    if (apply_redirs(cmd) == -1)
+        exit(1);
+
+    // 🔹 Builtins dans pipeline
+    if (is_builtin(cmd->args[0]))
+    {
+        exec_builtin(cmd, sh);
+        exit(sh->exit_status);
+    }
+
+    // 🔹 Commande externe
+    exec_external(cmd, sh);
+    exit(127);
 }
+
+
 
 void	pipeline_parent(t_cmd *cmd, int *prev_fd, int pipefd[2])
 {

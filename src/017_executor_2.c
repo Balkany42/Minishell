@@ -48,15 +48,47 @@ void	exec_single_builtin(t_cmd *cmd, t_minishell *sh)
 	close(saved_stdout);
 }
 
-void	exec_single_child(t_cmd *cmd, t_minishell *sh)
+// void	exec_single_child(t_cmd *cmd, t_minishell *sh)
+// {
+// 	signal(SIGINT, SIG_DFL);
+// 	signal(SIGQUIT, SIG_DFL);
+// 	if (apply_redirs(cmd) == -1)
+// 		exit(1);
+// 	exec_external(cmd, sh);
+// 	exit(127);
+// }
+
+void    exec_single_child(t_cmd *cmd, t_minishell *sh)
 {
-	signal(SIGINT, SIG_DFL);
-	signal(SIGQUIT, SIG_DFL);
-	if (apply_redirs(cmd) == -1)
-		exit(1);
-	exec_external(cmd, sh);
-	exit(127);
+    signal(SIGINT, SIG_DFL);
+    signal(SIGQUIT, SIG_DFL);
+
+    // 🔹 Commande vide avec redirections
+    if (!cmd->args || !cmd->args[0])
+    {
+        if (cmd->redirs)
+        {
+            if (apply_redirs(cmd) == -1)
+                exit(1);
+
+            // 🔥 Copie STDIN → STDOUT pour écrire le heredoc dans le fichier
+            char buffer[4096];
+            ssize_t n;
+
+            while ((n = read(STDIN_FILENO, buffer, sizeof(buffer))) > 0)
+                write(STDOUT_FILENO, buffer, n);
+        }
+        exit(0);
+    }
+
+    if (apply_redirs(cmd) == -1)
+        exit(1);
+
+    exec_external(cmd, sh);
+    exit(127);
 }
+
+
 
 void	exec_single_parent(pid_t pid, t_minishell *sh)
 {
