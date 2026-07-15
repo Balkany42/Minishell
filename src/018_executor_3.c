@@ -53,8 +53,15 @@ void    exec_pipeline(t_cmd *cmds, t_minishell *sh)
 
     while (cmds)
     {
+        // 🔥 Erreur silencieuse si pipe() échoue
         if (cmds->next && pipe(pipefd) == -1)
-            return ;
+        {
+            if (prev_fd != -1)
+                close(prev_fd);
+			perror("minishell: pipe");
+            sh->exit_status = 1;   // ✔ bash fait ça
+            return;                // ✔ ne pas appeler pipeline_wait_last()
+        }
 
         pid = fork();
         if (pid == -1)
@@ -64,7 +71,6 @@ void    exec_pipeline(t_cmd *cmds, t_minishell *sh)
             pipeline_child(cmds, sh, prev_fd, pipefd);
         else
         {
-            // ✔ IGNORER LES SIGNAUX DANS LE PARENT ICI
             signal(SIGINT, SIG_IGN);
             signal(SIGQUIT, SIG_IGN);
 
@@ -76,9 +82,11 @@ void    exec_pipeline(t_cmd *cmds, t_minishell *sh)
         }
     }
 
+    // 🔥 Ce code n'est exécuté que si pipe() n'a PAS échoué
     pipeline_wait_last(last_pid, sh);
     init_signals();
 }
+
 
 
 // void	pipeline_child(t_cmd *cmd, t_minishell *sh, int prev_fd, int pipefd[2])
