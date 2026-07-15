@@ -60,7 +60,7 @@ void	exec_single_builtin(t_cmd *cmd, t_minishell *sh)
 
 void    exec_single_child(t_cmd *cmd, t_minishell *sh)
 {
-    signal(SIGINT, SIG_DFL);
+	signal(SIGINT, SIG_DFL);
     signal(SIGQUIT, SIG_DFL);
 
     // 🔹 Commande vide avec redirections

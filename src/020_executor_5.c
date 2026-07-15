@@ -40,7 +40,7 @@
 
 int apply_redirs(t_cmd *cmd)
 {
-    t_redir *r = cmd->redirs;
+	t_redir *r = cmd->redirs;
     int fd;
 
     // 1. Trouver le dernier REDIR_IN

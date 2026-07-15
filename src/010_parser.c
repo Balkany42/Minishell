@@ -25,7 +25,7 @@ t_cmd	*parser(t_token *list, t_minishell *sh)
 			return (NULL);
 		add_cmd_to_list(&head, cmd);
 		if (list && list->type == PIPE)
-			list = list->next;
+				list = list->next;
 	}
 	return (head);
 }

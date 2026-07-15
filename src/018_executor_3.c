@@ -117,7 +117,7 @@ void    exec_pipeline(t_cmd *cmds, t_minishell *sh)
 
 void    pipeline_child(t_cmd *cmd, t_minishell *sh, int prev_fd, int pipefd[2])
 {
-    signal(SIGINT, SIG_DFL);
+	signal(SIGINT, SIG_DFL);
     signal(SIGQUIT, SIG_DFL);
 
     // 🔹 Commande vide avec redirections (cas du heredoc après un pipe)
