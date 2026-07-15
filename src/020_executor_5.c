@@ -20,13 +20,13 @@ int	apply_redirs(t_cmd *cmd)
 	r = cmd->redirs;
 	while (r)
 	{
-		if (r->type == HEREDOC)
+		if (r->type == REDIR_IN)
 		{
-			fd = open_heredoc(r->file);
-			if (fd < 0)
-				return (-1);
-			dup2(fd, STDIN_FILENO);
-			close(fd);
+    		fd = open(r->file, O_RDONLY);
+    		if (fd < 0)
+        	return (-1);
+    		dup2(fd, STDIN_FILENO);
+    		close(fd);
 		}
 		else
 		{
@@ -58,42 +58,42 @@ int	handle_normal_redir(t_redir *r)
 	return (0);
 }
 
-int	open_heredoc(char *limiter)
-{
-	int	pipefd[2];
+// int	open_heredoc(char *limiter)
+// {
+// 	int	pipefd[2];
 
-	if (pipe(pipefd) == -1)
-		return (-1);
-	signal(SIGINT, SIG_DFL);
-	signal(SIGQUIT, SIG_IGN);
-	if (read_heredoc_lines(pipefd[1], limiter) < 0)
-	{
-		close(pipefd[1]);
-		close(pipefd[0]);
-		return (-1);
-	}
-	close(pipefd[1]);
-	init_signals();
-	return (pipefd[0]);
-}
+// 	if (pipe(pipefd) == -1)
+// 		return (-1);
+// 	signal(SIGINT, SIG_DFL);
+// 	signal(SIGQUIT, SIG_IGN);
+// 	if (read_heredoc_lines(pipefd[1], limiter) < 0)
+// 	{
+// 		close(pipefd[1]);
+// 		close(pipefd[0]);
+// 		return (-1);
+// 	}
+// 	close(pipefd[1]);
+// 	init_signals();
+// 	return (pipefd[0]);
+// }
 
-int	read_heredoc_lines(int write_fd, char *limiter)
-{
-	char	*line;
+// int	read_heredoc_lines(int write_fd, char *limiter)
+// {
+// 	char	*line;
 
-	while (1)
-	{
-		line = readline("heredoc> ");
-		if (!line)
-			return (-1);
-		if (ft_strcmp(line, limiter) == 0)
-		{
-			free(line);
-			break ;
-		}
-		write(write_fd, line, ft_strlen(line));
-		write(write_fd, "\n", 1);
-		free(line);
-	}
-	return (0);
-}
+// 	while (1)
+// 	{
+// 		line = readline("heredoc> ");
+// 		if (!line)
+// 			return (-1);
+// 		if (ft_strcmp(line, limiter) == 0)
+// 		{
+// 			free(line);
+// 			break ;
+// 		}
+// 		write(write_fd, line, ft_strlen(line));
+// 		write(write_fd, "\n", 1);
+// 		free(line);
+// 	}
+// 	return (0);
+// }

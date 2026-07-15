@@ -216,5 +216,8 @@ int			count_digits(int n);
 int			handle_single_quote_part(t_token **list, char *s, int *i);
 int			handle_double_quote_part(t_token **list, char *s, int *i);
 void		handle_unquoted_part(t_token **list, char *s, int *i);
+void    prepare_heredocs(t_cmd *cmds, t_minishell *sh);
+int write_heredoc_to(const char *path, const char *limiter);
+char    *generate_heredoc_tmp_name(void);
 
 #endif

@@ -58,6 +58,7 @@ void	process_line(char *line, t_minishell *sh)
 		free (line);
 		return ;
 	}
+	prepare_heredocs(cmds, sh);
 	executor(cmds, sh);
 	free_cmds(cmds);
 	free(line);

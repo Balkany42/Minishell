@@ -34,7 +34,8 @@ src/028_utils_1.c \
 src/029_utils_2.c \
 src/030_utils_3.c \
 src/031_utils_4.c \
-src/032_utils_5.c
+src/032_utils_5.c \
+src/corrections.c
 
 OBJ := $(SRC:.c=.o)
 
