@@ -21,6 +21,7 @@ t_cmd	*cmd_new(void)
 		return (NULL);
 	cmd->args = NULL;
 	cmd->fd_in = 0;
+	cmd->redirs = NULL;
 	cmd->fd_out = 1;
 	cmd->next = NULL;
 	return (cmd);

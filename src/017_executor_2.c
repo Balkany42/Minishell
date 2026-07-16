@@ -28,6 +28,7 @@ void	exec_single(t_cmd *cmd, t_minishell *sh)
 
 void	exec_single_builtin(t_cmd *cmd, t_minishell *sh)
 {
+	//printf(">>> exec_single_builtin CALLED for %s\n", cmd->args[0]);
 	int	saved_stdin;
 	int	saved_stdout;
 
@@ -35,6 +36,7 @@ void	exec_single_builtin(t_cmd *cmd, t_minishell *sh)
 	saved_stdout = dup(STDOUT_FILENO);
 	if (apply_redirs(cmd) == -1)
 	{
+		sh->exit_status = 1;
 		dup2(saved_stdin, STDIN_FILENO);
 		dup2(saved_stdout, STDOUT_FILENO);
 		close(saved_stdin);

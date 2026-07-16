@@ -79,6 +79,8 @@ typedef struct s_minishell
 	int				exit_status;
 	char			**envp;
 	int				should_exit;
+	int				redir_error;
+	int				heredoc_interrupted;
 }	t_minishell;
 
 void		init_minishell(t_minishell *sh, char **envp);
@@ -103,7 +105,7 @@ int			skip_spaces(char *s, int i);
 t_tokentype	is_operator(char *s, int i);
 t_token		*token_new(char *value, t_tokentype type);
 void		add_token(t_token **list, char *value, t_tokentype type);
-void		read_word(t_token **list, char *s, int *i);
+int read_word(t_token **list, char *s, int *i);
 void		add_token_with_quote(t_token **list, char *value,
 				t_tokentype type, t_quote q);
 char		*read_single_quote(char *s, int *i);
@@ -219,5 +221,7 @@ void		handle_unquoted_part(t_token **list, char *s, int *i);
 void    prepare_heredocs(t_cmd *cmds, t_minishell *sh);
 int write_heredoc_to(const char *path, const char *limiter);
 char    *generate_heredoc_tmp_name(void);
+char *str_join_and_free(char *a, char *b);
+void heredoc_sigint(int sig);
 
 #endif

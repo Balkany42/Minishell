@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   009_parser.c                                       :+:      :+:    :+:   */
+/*   010_parser.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: megrelli <melchior.grellier42@gmail.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -20,6 +20,7 @@ t_cmd	*parser(t_token *list, t_minishell *sh)
 	head = NULL;
 	while (list)
 	{
+		sh->redir_error = 0;
 		cmd = parse_command(&list, sh);
 		if (!cmd)
 			return (NULL);

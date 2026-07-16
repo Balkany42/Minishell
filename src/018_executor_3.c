@@ -119,7 +119,7 @@ void    pipeline_child(t_cmd *cmd, t_minishell *sh, int prev_fd, int pipefd[2])
 {
 	signal(SIGINT, SIG_DFL);
     signal(SIGQUIT, SIG_DFL);
-
+	//printf(">>> pipeline_child CALLED for %s\n", cmd->args[0]);
     // 🔹 Commande vide avec redirections (cas du heredoc après un pipe)
     if (!cmd->args || !cmd->args[0])
     {

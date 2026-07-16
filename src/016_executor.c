@@ -15,7 +15,10 @@
 void	executor(t_cmd *cmds, t_minishell *sh)
 {
 	if (!cmds)
-		return ;
+    {
+        sh->exit_status = 1;   // erreur de parsing
+        return;
+    }
 	if (!cmds->next)
 		exec_single(cmds, sh);
 	else

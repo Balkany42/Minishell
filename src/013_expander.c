@@ -68,6 +68,7 @@ t_env	*new_env_node(char *key, char *value)
 
 char	*expand_token(t_token *tok, t_minishell *sh)
 {
+	//fprintf(stderr, "[EXPAND] token='%s' exit_status=%d\n", tok->value, sh->exit_status);
 	if (tok->quote_type == SINGLE_QUOTE)
 		return (ft_strdup(tok->value));
 	return (expand_word(tok->value, sh));

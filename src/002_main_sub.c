@@ -18,6 +18,7 @@ void	init_minishell(t_minishell *sh, char **envp)
 	sh->envp = env_to_tab(sh->env);
 	sh->exit_status = 0;
 	sh->should_exit = 0;
+	sh->redir_error = 0;
 	init_signals();
 }
 
@@ -51,14 +52,26 @@ void	process_line(char *line, t_minishell *sh)
 		free (line);
 		return ;
 	}
+	//printf("A");
 	cmds = parser(tokens, sh);
+	//printf("B");
 	free_tokens(tokens);
 	if (!cmds)
 	{
+		//printf("Z");
 		free (line);
 		return ;
 	}
+	//printf("C");
 	prepare_heredocs(cmds, sh);
+	if (sh->heredoc_interrupted)
+	{
+    	sh->heredoc_interrupted = 0;
+    	free_cmds(cmds);
+    	free(line);
+    	return;
+	}
+	//printf("D");
 	executor(cmds, sh);
 	free_cmds(cmds);
 	free(line);
@@ -69,6 +82,7 @@ void	process_line(char *line, t_minishell *sh)
 int	handle_lexer_and_syntax(char *line, t_token **tokens, t_minishell *sh)
 {
 	*tokens = lexer(line);
+	
 	if (!*tokens)
 	{
 		if (line[0] != '\0' && line[0] != ' ' && line[0] != '\t')

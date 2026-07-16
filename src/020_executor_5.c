@@ -1,49 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   017_executor_5.c                                   :+:      :+:    :+:   */
+/*   020_executor_5.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mgrager <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 02:18:41 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/13 02:23:11 by mgrager          ###   ########.fr       */
+/*   Updated: 2026/07/16 04:36:01 by mgrager          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-// int	apply_redirs(t_cmd *cmd)
-// {
-// 	t_redir	*r;
-// 	int		fd;
-
-// 	r = cmd->redirs;
-// 	while (r)
-// 	{
-// 		if (r->type == REDIR_IN)
-// 		{
-//     		fd = open(r->file, O_RDONLY);
-//     		if (fd < 0)
-//         	return (-1);
-//     		dup2(fd, STDIN_FILENO);
-//     		close(fd);
-// 		}
-// 		else
-// 		{
-// 			if (handle_normal_redir(r) < 0)
-// 				return (-1);
-// 		}
-// 		r = r->next;
-// 	}
-// 	return (0);
-// }
-
 int apply_redirs(t_cmd *cmd)
 {
-	t_redir *r = cmd->redirs;
-    int fd;
+	t_redir	*r = cmd->redirs;
+	int		fd;
 
-    // 1. Trouver le dernier REDIR_IN
     t_redir *last_in = NULL;
     while (r)
     {
@@ -51,8 +24,6 @@ int apply_redirs(t_cmd *cmd)
             last_in = r;
         r = r->next;
     }
-
-    // 2. Appliquer les redirections OUT / APPEND / etc.
     r = cmd->redirs;
     while (r)
     {
@@ -63,13 +34,14 @@ int apply_redirs(t_cmd *cmd)
         }
         r = r->next;
     }
-
-    // 3. Appliquer seulement le dernier REDIR_IN
     if (last_in)
     {
         fd = open(last_in->file, O_RDONLY);
         if (fd < 0)
-            return (-1);
+		{
+            perror(last_in->file);
+			return (-1);
+		}
         dup2(fd, STDIN_FILENO);
         close(fd);
     }
@@ -82,6 +54,7 @@ int	handle_normal_redir(t_redir *r)
 {
 	int	fd;
 
+	//printf("handle_normal_redir called for file: %s\n", r->file);
 	if (r->type == REDIR_IN)
 		fd = open(r->file, O_RDONLY);
 	else if (r->type == REDIR_OUT)
@@ -89,7 +62,10 @@ int	handle_normal_redir(t_redir *r)
 	else
 		fd = open(r->file, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (fd < 0)
+	{
+		perror(r->file);
 		return (-1);
+	}
 	if (r->type == REDIR_IN)
 		dup2(fd, STDIN_FILENO);
 	else
