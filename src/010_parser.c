@@ -6,7 +6,7 @@
 /*   By: megrelli <melchior.grellier42@gmail.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/11 23:56:11 by megrelli          #+#    #+#             */
-/*   Updated: 2026/07/13 00:33:06 by mgrager          ###   ########.fr       */
+/*   Updated: 2026/07/16 21:57:39 by mgrager          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ t_cmd	*parser(t_token *list, t_minishell *sh)
 			return (NULL);
 		add_cmd_to_list(&head, cmd);
 		if (list && list->type == PIPE)
-				list = list->next;
+			list = list->next;
 	}
 	return (head);
 }

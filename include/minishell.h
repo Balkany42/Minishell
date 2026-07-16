@@ -6,7 +6,7 @@
 /*   By: mgrager <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 15:55:54 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/13 23:42:32 by mgrager          ###   ########.fr       */
+/*   Updated: 2026/07/17 01:00:20 by mgrager          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,14 @@ typedef struct s_minishell
 	int				heredoc_interrupted;
 }	t_minishell;
 
+typedef struct s_pipectx
+{
+	t_minishell		*sh;
+	int				*prev_fd;
+	int				pipefd[2];
+	pid_t			*last_pid;
+}	t_pipectx;
+
 void		init_minishell(t_minishell *sh, char **envp);
 void		run_minishell_loop(t_minishell *sh);
 void		process_line(char *line, t_minishell *sh);
@@ -100,12 +108,10 @@ t_token		*lexer(char *line);
 t_token		*lexer_loop(char *line);
 int			handle_operator(t_token **list, char *line, int i,
 				t_tokentype type);
-int			handle_word(t_token **list, char *line, int i);
 int			skip_spaces(char *s, int i);
 t_tokentype	is_operator(char *s, int i);
 t_token		*token_new(char *value, t_tokentype type);
-void		add_token(t_token **list, char *value, t_tokentype type);
-int read_word(t_token **list, char *s, int *i);
+int			read_word(t_token **list, char *s, int *i);
 void		add_token_with_quote(t_token **list, char *value,
 				t_tokentype type, t_quote q);
 char		*read_single_quote(char *s, int *i);
@@ -160,8 +166,6 @@ void		exec_from_envpath(t_cmd *cmd, t_minishell *sh);
 void		check_is_directory(char *path);
 int			apply_redirs(t_cmd *cmd);
 int			handle_normal_redir(t_redir *r);
-int			open_heredoc(char *limiter);
-int			read_heredoc_lines(int write_fd, char *limiter);
 void		free_tab(char **tab);
 void		free_cmds(t_cmd *cmds);
 void		free_redirs(t_redir *r);
@@ -215,13 +219,23 @@ int			ft_itoa_count_digits(long nb);
 void		ft_itoa_fill(char *str, long nb, int len);
 size_t		ft_strlen(const char *s);
 int			count_digits(int n);
-int			handle_single_quote_part(t_token **list, char *s, int *i);
-int			handle_double_quote_part(t_token **list, char *s, int *i);
-void		handle_unquoted_part(t_token **list, char *s, int *i);
-void    prepare_heredocs(t_cmd *cmds, t_minishell *sh);
-int write_heredoc_to(const char *path, const char *limiter);
-char    *generate_heredoc_tmp_name(void);
-char *str_join_and_free(char *a, char *b);
-void heredoc_sigint(int sig);
+void		prepare_heredocs(t_cmd *cmds, t_minishell *sh);
+int			write_heredoc_to(const char *path, const char *limiter);
+char		*generate_heredoc_tmp_name(void);
+char		*str_join_and_free(char *a, char *b);
+void		heredoc_sigint(int sig);
+t_redir		*find_last_in(t_redir *r);
+int			apply_out_redirs(t_redir *r);
+int			apply_last_in(t_redir *last_in);
+int			handle_single_quote(char **buf, char *s, int *i, t_quote *qtype);
+int			handle_double_quote(char **buf, char *s, int *i, t_quote *qtype);
+void		exec_pipeline_loop(t_cmd *cmds, t_minishell *sh,
+				int *prev_fd, pid_t *last_pid);
+int			exec_pipeline_step(t_cmd *cmds, t_pipectx *ctx);
+void		pipeline_child_empty(t_cmd *cmd);
+void		pipeline_child_pipes(t_cmd *cmd, int prev_fd, int pipefd[2]);
+void		run_heredoc_child(char *tmp, char *limiter);
+int			handle_heredoc_status(int status, char *tmp, t_minishell *sh);
+int			process_single_heredoc(t_redir *r, t_minishell *sh);
 
 #endif

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   005_lexer.c                                        :+:      :+:    :+:   */
+/*   006_lexer.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mgrager <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/12 22:04:42 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/12 22:10:15 by mgrager          ###   ########.fr       */
+/*   Updated: 2026/07/16 21:32:04 by mgrager          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,35 +19,33 @@ t_token	*lexer(char *line)
 	return (lexer_loop(line));
 }
 
-t_token *lexer_loop(char *line)
+t_token	*lexer_loop(char *line)
 {
-    t_token     *list;
-    int         i;
-    t_tokentype type;
+	t_token		*list;
+	int			i;
+	t_tokentype	type;
 
-    list = NULL;
-    i = 0;
-    while (line[i])
-    {
-        i = skip_spaces(line, i);
-        if (!line[i])
-            break ;
-        type = is_operator(line, i);
-		//printf("lexer: char='%c' type=%d\n", line[i], type);
-        if (type != WORD)
-            i = handle_operator(&list, line, i, type);
-        else
-        {
-            if (!read_word(&list, line, &i))   // <-- NOUVEAU : on teste l’erreur
-            {
-                free_tokens(list);
-                return NULL;
-            }
-        }
-    }
-    return list;
+	list = NULL;
+	i = 0;
+	while (line[i])
+	{
+		i = skip_spaces(line, i);
+		if (!line[i])
+			break ;
+		type = is_operator(line, i);
+		if (type != WORD)
+			i = handle_operator(&list, line, i, type);
+		else
+		{
+			if (!read_word(&list, line, &i))
+			{
+				free_tokens(list);
+				return (NULL);
+			}
+		}
+	}
+	return (list);
 }
-
 
 int	handle_operator(t_token **list, char *line, int i, t_tokentype type)
 {
@@ -65,9 +63,3 @@ int	handle_operator(t_token **list, char *line, int i, t_tokentype type)
 	free(tmp);
 	return (i + 1);
 }
-
-// int	handle_word(t_token **list, char *line, int i)
-// {
-// 	read_word(list, line, &i);
-// 	return (i);
-// }

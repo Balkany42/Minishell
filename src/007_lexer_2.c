@@ -6,18 +6,11 @@
 /*   By: mgrager <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/12 22:22:15 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/13 23:39:22 by mgrager          ###   ########.fr       */
+/*   Updated: 2026/07/17 00:27:13 by mgrager          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
-
-int	skip_spaces(char *s, int i)
-{
-	while (s[i] == ' ' || s[i] == '\t')
-		i++;
-	return (i);
-}
 
 t_tokentype	is_operator(char *s, int i)
 {
@@ -55,94 +48,61 @@ t_token	*token_new(char *value, t_tokentype type)
 	return (new);
 }
 
-// void	add_token(t_token **list, char *value, t_tokentype type)
-// {
-// 	t_token	*new;
-// 	t_token	*tmp;
-
-// 	//fprintf(stderr, "[TOKEN] type=%d value='%s'\n", type, value);
-// 	new = token_new(value, type);
-// 	if (!new)
-// 		return ;
-// 	if (*list == NULL)
-// 	{
-// 		*list = new;
-// 		return ;
-// 	}
-// 	tmp = *list;
-// 	while (tmp->next)
-// 		tmp = tmp->next;
-// 	tmp->next = new;
-// }
-
-// void	read_word(t_token **list, char *s, int *i)
-// {
-// 	while (s[*i] && s[*i] != ' ' && s[*i] != '\t'
-// 		&& is_operator(s, *i) == WORD)
-// 	{
-// 		if (s[*i] == '\'')
-// 		{
-// 			if (!handle_single_quote_part(list, s, i))
-// 				return ;
-// 		}
-// 		else if (s[*i] == '"')
-// 		{
-// 			if (!handle_double_quote_part(list, s, i))
-// 				return ;
-// 		}
-// 		else
-// 			handle_unquoted_part(list, s, i);
-// 	}
-// }
-
-int read_word(t_token **list, char *s, int *i)
+int	read_word(t_token **list, char *s, int *i)
 {
-    char    *buf = ft_strdup("");
-    char    *part;
-	t_quote qtype = NO_QUOTE;
+	char	*buf;
+	char	*part;
+	t_quote	qtype;
 
-    while (s[*i] && s[*i] != ' ' && s[*i] != '\t'
-        && is_operator(s, *i) == WORD)
-    {
-        if (s[*i] == '\'')
-        {
-            qtype = SINGLE_QUOTE;
-			part = read_single_quote(s, i);
-            if (!part)                // <-- quote non fermée
-            {
-                free(buf);
-                return 0;
-            }
-            buf = str_join_and_free(buf, part);
-        }
-        else if (s[*i] == '"')
-        {
-            qtype = DOUBLE_QUOTE;
-			part = read_double_quote(s, i);
-            if (!part)                // <-- quote non fermée
-            {
-                free(buf);
-                return 0;
-            }
-            buf = str_join_and_free(buf, part);
-        }
-        else
-        {
-            part = read_unquoted(s, i);
-            buf = str_join_and_free(buf, part);
-        }
-    }
-	
-    // add_token(list, buf, WORD);
-	add_token_with_quote(list, buf, WORD, qtype);
-    free(buf);
-    return 1;   // OK
+	buf = ft_strdup("");
+	qtype = NO_QUOTE;
+	while (s[*i] && s[*i] != ' ' && s[*i] != '\t' && is_operator(s, *i) == WORD)
+	{
+		if (s[*i] == '\'')
+		{
+			if (!handle_single_quote(&buf, s, i, &qtype))
+				return (0);
+		}
+		else if (s[*i] == '"')
+		{
+			if (!handle_double_quote(&buf, s, i, &qtype))
+				return (0);
+		}
+		else
+		{
+			part = read_unquoted(s, i);
+			buf = str_join_and_free(buf, part);
+		}
+	}
+	return (add_token_with_quote(list, buf, WORD, qtype), free(buf), 1);
 }
 
-char *str_join_and_free(char *a, char *b)
+int	handle_single_quote(char **buf, char *s, int *i, t_quote *qtype)
 {
-    char *res = ft_strjoin(a, b);
-    free(a);
-    free(b);
-    return res;
+	char	*part;
+
+	*qtype = SINGLE_QUOTE;
+	part = read_single_quote(s, i);
+	if (!part)
+	{
+		free(*buf);
+		return (0);
+	}
+	*buf = str_join_and_free(*buf, part);
+	return (1);
+}
+
+int	handle_double_quote(char **buf, char *s, int *i, t_quote *qtype)
+{
+	char	*part;
+
+	*qtype = DOUBLE_QUOTE;
+	part = read_double_quote(s, i);
+	if (!part)
+	{
+		free(*buf);
+		return (0);
+	}
+	*buf = str_join_and_free(*buf, part);
+	return (1);
 }

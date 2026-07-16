@@ -6,7 +6,7 @@
 /*   By: mgrager <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/12 20:57:36 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/13 23:24:54 by mgrager          ###   ########.fr       */
+/*   Updated: 2026/07/16 21:27:27 by mgrager          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ void	init_minishell(t_minishell *sh, char **envp)
 	sh->env = init_env(envp);
 	sh->envp = env_to_tab(sh->env);
 	sh->exit_status = 0;
+	sh->heredoc_interrupted = 0;
 	sh->should_exit = 0;
 	sh->redir_error = 0;
 	init_signals();
@@ -48,30 +49,19 @@ void	process_line(char *line, t_minishell *sh)
 	if (!is_blank_line(line))
 		add_history(line);
 	if (!handle_lexer_and_syntax(line, &tokens, sh))
-	{
-		free (line);
-		return ;
-	}
-	//printf("A");
+		return (free(line));
 	cmds = parser(tokens, sh);
-	//printf("B");
 	free_tokens(tokens);
 	if (!cmds)
-	{
-		//printf("Z");
-		free (line);
-		return ;
-	}
-	//printf("C");
+		return (free (line));
 	prepare_heredocs(cmds, sh);
 	if (sh->heredoc_interrupted)
 	{
-    	sh->heredoc_interrupted = 0;
-    	free_cmds(cmds);
-    	free(line);
-    	return;
+		sh->heredoc_interrupted = 0;
+		free_cmds(cmds);
+		free(line);
+		return ;
 	}
-	//printf("D");
 	executor(cmds, sh);
 	free_cmds(cmds);
 	free(line);
@@ -82,7 +72,6 @@ void	process_line(char *line, t_minishell *sh)
 int	handle_lexer_and_syntax(char *line, t_token **tokens, t_minishell *sh)
 {
 	*tokens = lexer(line);
-	
 	if (!*tokens)
 	{
 		if (line[0] != '\0' && line[0] != ' ' && line[0] != '\t')

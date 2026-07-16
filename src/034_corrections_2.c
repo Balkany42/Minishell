@@ -1,68 +1,54 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   034_corrections_2.c                                :+:      :+:    :+:   */
+/*   033_corrections.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mgrager <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/07/16 04:30:56 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/16 04:34:42 by mgrager          ###   ########.fr       */
+/*   Created: 2026/07/16 04:28:19 by mgrager           #+#    #+#             */
+/*   Updated: 2026/07/17 00:08:16 by mgrager          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-// void	prepare_heredocs(t_cmd *cmds, t_minishell *sh)
-// {
-// 	t_cmd	*cmd = cmds;
-// 	t_redir	*r;
+int	write_heredoc_to(const char *path, const char *limiter)
+{
+	int		fd;
+	char	*line;
 
-// 	while (cmd)
-// 	{
-// 		r = cmd->redirs;
-// 		while (r)
-// 		{
-// 			if (r->type == HEREDOC)
-// 			{
-// 				char *tmp = generate_heredoc_tmp_name();
-// 				if (!tmp)
-// 				{
-// 					sh->exit_status = 1;
-// 					return ;
-// 				}
-// 				pid_t pid = fork();
-// 				if (pid == 0)
-// 				{
-// 					rl_catch_signals = 1;
-// 					signal(SIGINT, SIG_DFL);
-// 					signal(SIGQUIT, SIG_IGN);
-// 					if (write_heredoc_to(tmp, r->file) < 0)
-// 						exit(1);
-// 					exit(0);
-// 				}
-// 				int status;
-// 				signal(SIGINT, SIG_IGN); 
-// 				waitpid(pid, &status, 0);
-// 				signal(SIGINT, handler_sigint);
-// 				if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
-// 				{
-// 					sh->exit_status = 130;
-// 					sh->heredoc_interrupted = 1;
-// 					free(tmp);
-// 					return ;
-// 				}
-// 				if (WEXITSTATUS(status) != 0)
-// 				{
-// 					sh->exit_status = 1;
-// 					free(tmp);
-// 					return ;
-// 				}
-// 				free(r->file);
-// 				r->file = tmp;
-// 				r->type = REDIR_IN;
-// 				}
-// 			r = r->next;
-// 		}
-// 		cmd = cmd->next;
-// 	}
-// }
+	fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (fd < 0)
+		return (-1);
+	while (1)
+	{
+		line = readline("heredoc> ");
+		if (!line)
+			return (printf("bash: warning: here-document delimited "
+					"by end-of-file (wanted `%s`)\n", limiter),
+				rl_free_line_state(), close(fd), 1);
+		if (strcmp(line, limiter) == 0)
+		{
+			free(line);
+			break ;
+		}
+		write(fd, line, ft_strlen(line));
+		write(fd, "\n", 1);
+		free(line);
+	}
+	close(fd);
+	return (0);
+}
+
+char	*generate_heredoc_tmp_name(void)
+{
+	static int	index;
+	char		*path;
+
+	index = 0;
+	path = malloc(50);
+	if (!path)
+		return (NULL);
+	sprintf(path, "/tmp/minishell_heredoc_%d", index++);
+	return (path);
+}

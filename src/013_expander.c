@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   A.c                                                :+:      :+:    :+:   */
+/*   013_expander.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mgrager <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 13:29:59 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/13 13:34:37 by mgrager          ###   ########.fr       */
+/*   Updated: 2026/07/16 21:25:58 by mgrager          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,6 @@ t_env	*new_env_node(char *key, char *value)
 
 char	*expand_token(t_token *tok, t_minishell *sh)
 {
-	//fprintf(stderr, "[EXPAND] token='%s' exit_status=%d\n", tok->value, sh->exit_status);
 	if (tok->quote_type == SINGLE_QUOTE)
 		return (ft_strdup(tok->value));
 	return (expand_word(tok->value, sh));
