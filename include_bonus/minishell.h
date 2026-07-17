@@ -251,5 +251,9 @@ t_wildlist   *wild_read_directory(void);
 char    *expand_wildcard(char *pattern);
 int wild_match(char *pattern, char *name);
 void    free_split(char **arr);
+size_t	ft_strlen_2(const char *s);
+void    wild_clear(t_wildlist **lst);
+int strcmp_bash(const char *a, const char *b);
+int ft_tolower(int c);
 
 #endif

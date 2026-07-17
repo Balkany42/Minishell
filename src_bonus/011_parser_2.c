@@ -50,7 +50,7 @@ t_token *parse_word_token(t_cmd *cmd, t_token *tok, t_minishell *sh)
     expanded = expand_token(tok, sh);
 
     // Si wildcard → split
-    if (has_unquoted_wildcard(tok->value))
+    if (has_unquoted_wildcard(expanded))
     {
         parts = ft_split(expanded, ' ');
         free(expanded);

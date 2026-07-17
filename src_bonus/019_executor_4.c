@@ -42,7 +42,7 @@ void	exec_from_envpath(t_cmd *cmd, t_minishell *sh)
 	cmdpath = path(cmd->args[0], sh->envp);
 	if (!cmdpath)
 	{
-		write(2, cmd->args[0], ft_strlen(cmd->args[0]));
+		write(2, cmd->args[0], ft_strlen_2(cmd->args[0]));
 		write(2, ": command not found\n", 21);
 		exit(127);
 	}

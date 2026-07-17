@@ -53,3 +53,21 @@ char	*str_join_and_free(char *a, char *b)
 	free(b);
 	return (res);
 }
+size_t	ft_strlen_2(const char *s)
+{
+	size_t	i;
+
+	i = 0;
+	if (!s)
+		return (0);
+	while (s[i] && s[i] != ' ' && s[i] != '\n' && s[i] != '\t')
+		i++;
+	return (i);
+}
+
+int ft_tolower(int c)
+{
+    if (c >= 'A' && c <= 'Z')
+        return (c + 32);
+    return (c);
+}

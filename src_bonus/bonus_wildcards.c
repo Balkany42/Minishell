@@ -76,6 +76,65 @@ t_wildlist   *wild_read_directory(void)
 //     return (pattern); // temporaire
 // }
 
+int strcmp_bash(const char *a, const char *b)
+{
+    int i = 0;
+
+    while (a[i] && b[i])
+    {
+        char ca = a[i];
+        char cb = b[i];
+
+        // règle bash : les minuscules passent avant les majuscules
+        if (ca != cb)
+        {
+            // si les deux sont des lettres
+            if (ft_isalpha(ca) && ft_isalpha(cb))
+            {
+                // comparer en ignorant la casse
+                char la = ft_tolower(ca);
+                char lb = ft_tolower(cb);
+
+                if (la != lb)
+                    return (la - lb);
+
+                // si même lettre mais casse différente :
+                // minuscule < majuscule
+                return (ca - cb);
+            }
+
+            // sinon tri ASCII normal
+            return (ca - cb);
+        }
+
+        i++;
+    }
+
+    return (a[i] - b[i]);
+}
+
+
+void bubble_sort(char **tab)
+{
+    int     i;
+    int     j;
+    char    *tmp;
+
+    for (i = 0; tab[i]; i++)
+    {
+        for (j = i + 1; tab[j]; j++)
+        {
+            if (strcmp_bash(tab[i], tab[j]) > 0)
+            {
+                tmp = tab[i];
+                tab[i] = tab[j];
+                tab[j] = tmp;
+            }
+        }
+    }
+}
+
+
 char    *expand_wildcard(char *pattern)
 {
     t_wildlist   *files;
@@ -91,8 +150,18 @@ char    *expand_wildcard(char *pattern)
 
     while (tmp)
     {
+        // if (tmp->name[0] == '.' && pattern[0] != '.')
+        // {
+        //     tmp = tmp->next;
+        //     continue;
+        // }
         if (wild_match(pattern, tmp->name))
         {
+            if (tmp->name[0] == '.' && pattern[0] != '.')
+            {
+                tmp = tmp->next;
+                continue;
+            }
             found = 1;
             joined = ft_strjoin(result, tmp->name);
             free(result);
@@ -105,6 +174,8 @@ char    *expand_wildcard(char *pattern)
         tmp = tmp->next;
     }
 
+    wild_clear(&files);
+
     if (!found)
     {
         free(result);
@@ -115,8 +186,32 @@ char    *expand_wildcard(char *pattern)
     if (result[0] && result[ft_strlen(result) - 1] == ' ')
         result[ft_strlen(result) - 1] = '\0';
 
-    return (result);
+    // SPLIT → TRIER → REJOIN
+    char **tab = ft_split(result, ' ');
+    free(result);
+
+    bubble_sort(tab);
+
+    // Rejoin propre
+    result = ft_strdup("");
+    for (int i = 0; tab[i]; i++)
+    {
+        joined = ft_strjoin(result, tab[i]);
+        free(result);
+        result = joined;
+
+        if (tab[i + 1])
+        {
+            joined = ft_strjoin(result, " ");
+            free(result);
+            result = joined;
+        }
+    }
+
+    free_split(tab);
+    return result;
 }
+
 
 int wild_match(char *pattern, char *name)
 {
@@ -158,4 +253,19 @@ void    free_split(char **arr)
         i++;
     }
     free(arr);
+}
+void    wild_clear(t_wildlist **lst)
+{
+    t_wildlist *cur;
+    t_wildlist *next;
+
+    cur = *lst;
+    while (cur)
+    {
+        next = cur->next;
+        free(cur->name);
+        free(cur);
+        cur = next;
+    }
+    *lst = NULL;
 }
