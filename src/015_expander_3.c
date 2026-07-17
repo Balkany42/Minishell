@@ -72,7 +72,7 @@ char	*read_var_name(char *word, int *i)
 	int	start;
 
 	start = *i;
-	while (ft_isalnum(word[*i]) || word[*i] == '_' || word[*i] == '*')
+	while (ft_isalnum(word[*i]) || word[*i] == '_')
 		(*i)++;
 	return (ft_substr(word, start, *i - start));
 }

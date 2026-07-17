@@ -69,6 +69,7 @@ t_env	*new_env_node(char *key, char *value)
 char    *expand_token(t_token *tok, t_minishell *sh)
 {
     char *expanded;
+	char *wild;
 
     if (tok->quote_type == SINGLE_QUOTE)
         return (ft_strdup(tok->value));
@@ -77,7 +78,11 @@ char    *expand_token(t_token *tok, t_minishell *sh)
 
     // 👉 ICI : tu détectes et appliques les wildcards
     if (tok->quote_type == NO_QUOTE && has_unquoted_wildcard(expanded))
-        return (expand_wildcard(expanded));
+    {
+        wild = expand_wildcard(expanded);
+        free(expanded);          // 🔥 on libère la chaîne produite par expand_word
+        return (wild);
+    }
 
     return expanded;
 }
