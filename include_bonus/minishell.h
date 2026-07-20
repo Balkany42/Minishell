@@ -6,7 +6,7 @@
 /*   By: mgrager <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 15:55:54 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/20 07:46:09 by mgrager          ###   ########.fr       */
+/*   Updated: 2026/07/20 12:27:10 by mgrager          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,7 @@ typedef struct s_cmd
 	t_redir			*redirs;
 	int				fd_in;
 	int				fd_out;
+	struct s_ast	*group_ast;
 	struct s_cmd	*next;
 }	t_cmd;
 
@@ -283,6 +284,8 @@ void		wild_clear(t_wildlist **lst);
 int			strcmp_bash(const char *a, const char *b, int index);
 int			ft_tolower(int c);
 t_ast		*parse_command_ast(t_token **t, t_minishell *sh);
+t_ast		*parse_group_or_pipeline(t_token **t, t_minishell *sh);
+t_ast		*parse_simple_command_ast(t_token **t, t_minishell *sh);
 t_ast		*parse_group_ast(t_token **t, t_minishell *sh);
 t_ast		*parse_pipeline(t_token **t, t_minishell *sh);
 t_ast		*parse_and_or(t_token **t, t_minishell *sh);
@@ -299,12 +302,13 @@ char		*ast_to_string(t_ast *node);
 char		*cmd_to_string(t_cmd *cmd);
 int			is_redir(int type);
 char		*ft_strjoin3(const char *a, const char *b, const char *c);
-t_ast		*parse_and_or_group(t_token **t, t_minishell *sh);
 void		*ft_memcpy(void *dst, const void *src, size_t n);
 int			exec_none_ast(t_ast *node, t_minishell *sh);
 int			exec_group_ast(t_ast *node, t_minishell *sh);
 int			exec_and_or_ast(t_ast *node, t_minishell *sh);
 void		bubble_sort(char **tab);
 t_cmd		*cmd_from_group(t_ast *group);
+void		exec_group_child(t_cmd *cmd, t_minishell *sh, int prev_fd,
+				int pipefd[2]);
 
 #endif

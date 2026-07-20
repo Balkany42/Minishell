@@ -6,11 +6,52 @@
 /*   By: mgrager <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/20 08:31:46 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/20 08:31:47 by mgrager          ###   ########.fr       */
+/*   Updated: 2026/07/20 13:44:47 by mgrager          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include_bonus/minishell.h"
+
+t_ast	*parse_and_or(t_token **t, t_minishell *sh)
+{
+	t_ast	*left;
+	t_ast	*node;
+
+	left = parse_command_ast(t, sh);
+	if (!left)
+		return (NULL);
+	while (*t && (*t)->type != RPAREN
+		&& ((*t)->type == AND_IF || (*t)->type == OR_IF))
+	{
+		node = parse_and_or_step(left, t, sh);
+		if (!node)
+			return (NULL);
+		left = node;
+	}
+	return (left);
+}
+
+t_ast	*parse_and_or_step(t_ast *left, t_token **t, t_minishell *sh)
+{
+	t_ast_op	op;
+	t_ast		*right;
+	t_ast		*node;
+
+	if ((*t)->type == AND_IF)
+		op = AST_AND_IF;
+	else
+		op = AST_OR_IF;
+	*t = (*t)->next;
+	right = parse_command_ast(t, sh);
+	if (!right)
+		return (NULL);
+	node = malloc(sizeof(t_ast));
+	node->op = op;
+	node->left = left;
+	node->right = right;
+	node->cmd = NULL;
+	return (node);
+}
 
 t_cmd	*parse_pipeline_segment(t_token **list, t_minishell *sh)
 {
@@ -55,22 +96,14 @@ t_cmd	*parse_pipeline_step(t_token **list, t_minishell *sh, t_cmd **head)
 	return (cmd);
 }
 
-void	prepare_heredocs_ast(t_ast *node, t_minishell *sh)
+void	append_cmd_list(t_cmd *list, t_cmd *to_append)
 {
-	if (!node)
+	t_cmd	*tmp;
+
+	if (!list)
 		return ;
-	if (node->op == AST_NONE)
-	{
-		prepare_heredocs(node->cmd, sh);
-		return ;
-	}
-	if (node->op == AST_GROUP)
-	{
-		if (node->cmd)
-			prepare_heredocs(node->cmd, sh);
-		prepare_heredocs_ast(node->left, sh);
-		return ;
-	}
-	prepare_heredocs_ast(node->left, sh);
-	prepare_heredocs_ast(node->right, sh);
+	tmp = list;
+	while (tmp->next)
+		tmp = tmp->next;
+	tmp->next = to_append;
 }

@@ -12,6 +12,26 @@
 
 #include "../../include_bonus/minishell.h"
 
+void	prepare_heredocs_ast(t_ast *node, t_minishell *sh)
+{
+	if (!node)
+		return ;
+	if (node->op == AST_NONE)
+	{
+		prepare_heredocs(node->cmd, sh);
+		return ;
+	}
+	if (node->op == AST_GROUP)
+	{
+		if (node->cmd)
+			prepare_heredocs(node->cmd, sh);
+		prepare_heredocs_ast(node->left, sh);
+		return ;
+	}
+	prepare_heredocs_ast(node->left, sh);
+	prepare_heredocs_ast(node->right, sh);
+}
+
 void	prepare_heredocs(t_cmd *cmds, t_minishell *sh)
 {
 	t_cmd	*cmd;

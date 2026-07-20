@@ -6,7 +6,7 @@
 /*   By: mgrager <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 02:35:52 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/20 07:40:29 by mgrager          ###   ########.fr       */
+/*   Updated: 2026/07/20 12:28:38 by mgrager          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,8 @@ void	free_cmds(t_cmd *cmds)
 			}
 			free(cmds->args);
 		}
+		if (cmds->group_ast)
+			free_ast(cmds->group_ast);
 		free_redirs(cmds->redirs);
 		free(cmds);
 		cmds = tmp;

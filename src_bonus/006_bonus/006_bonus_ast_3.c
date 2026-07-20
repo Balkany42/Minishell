@@ -6,7 +6,7 @@
 /*   By: mgrager <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/20 08:31:53 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/20 08:31:55 by mgrager          ###   ########.fr       */
+/*   Updated: 2026/07/20 13:33:58 by mgrager          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,16 +27,9 @@ int	exec_ast(t_ast *node, t_minishell *sh)
 
 int	exec_none_ast(t_ast *node, t_minishell *sh)
 {
-	t_cmd	*tmp;
-
 	if (node->cmd == NULL)
 		return (exec_ast(node->left, sh));
-	tmp = node->cmd;
-	while (tmp)
-	{
-		executor(tmp, sh);
-		tmp = tmp->next;
-	}
+	executor(node->cmd, sh);
 	return (sh->exit_status);
 }
 
