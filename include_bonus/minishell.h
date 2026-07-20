@@ -6,7 +6,7 @@
 /*   By: mgrager <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 15:55:54 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/17 01:00:20 by mgrager          ###   ########.fr       */
+/*   Updated: 2026/07/20 07:46:09 by mgrager          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,11 @@ typedef enum e_tokentype
 	REDIR_OUT,
 	HEREDOC,
 	APPEND,
-	INVALID
+	INVALID,
+	LPAREN,
+	RPAREN,
+	AND_IF,
+	OR_IF,
 }	t_tokentype;
 
 typedef enum e_quote
@@ -42,6 +46,14 @@ typedef enum e_quote
 	SINGLE_QUOTE,
 	DOUBLE_QUOTE
 }	t_quote;
+
+typedef enum e_ast_op
+{
+	AST_NONE,
+	AST_AND_IF,
+	AST_OR_IF,
+	AST_GROUP
+}	t_ast_op;
 
 typedef struct s_token
 {
@@ -94,10 +106,17 @@ typedef struct s_pipectx
 
 typedef struct s_wildlist
 {
-    char                *name;
-    struct s_wildlist   *next;
-}   t_wildlist;
+	char				*name;
+	struct s_wildlist	*next;
+}	t_wildlist;
 
+typedef struct s_ast
+{
+	t_ast_op		op;
+	struct s_ast	*left;
+	struct s_ast	*right;
+	t_cmd			*cmd;
+}	t_ast;
 
 void		init_minishell(t_minishell *sh, char **envp);
 void		run_minishell_loop(t_minishell *sh);
@@ -118,8 +137,8 @@ int			handle_operator(t_token **list, char *line, int i,
 				t_tokentype type);
 int			skip_spaces(char *s, int i);
 t_tokentype	is_operator(char *s, int i);
-t_token		*token_new(char *value, t_tokentype type);
 int			read_word(t_token **list, char *s, int *i);
+int			read_word_loop(char **buf, char *s, int *i, t_quote *qtype);
 void		add_token_with_quote(t_token **list, char *value,
 				t_tokentype type, t_quote q);
 char		*read_single_quote(char *s, int *i);
@@ -131,6 +150,8 @@ int			check_first_token(t_token *t);
 int			check_invalid_token(t_token *t);
 int			check_end_of_line(t_token *t, t_token *n);
 int			check_between_tokens(t_token *t, t_token *n);
+int			check_pipe_and_redir_relations(t_token *t, t_token *n);
+int			check_logic_and_paren_relations(t_token *t, t_token *n);
 t_cmd		*parser(t_token *list, t_minishell *sh);
 void		add_cmd_to_list(t_cmd **cmd_list, t_cmd *cmd);
 t_cmd		*parse_command(t_token **list, t_minishell *sh);
@@ -163,7 +184,7 @@ void		exec_single(t_cmd *cmd, t_minishell *sh);
 void		exec_single_builtin(t_cmd *cmd, t_minishell *sh);
 void		exec_single_child(t_cmd *cmd, t_minishell *sh);
 void		exec_single_parent(pid_t pid, t_minishell *sh);
-void		exec_pipeline(t_cmd *cmds, t_minishell *sh);
+int			exec_pipeline(t_cmd *cmds, t_minishell *sh);
 void		pipeline_child(t_cmd *cmd,
 				t_minishell *sh, int prev_fd, int pipefd[2]);
 void		pipeline_parent(t_cmd *cmd, int *prev_fd, int pipefd[2]);
@@ -245,15 +266,45 @@ void		pipeline_child_pipes(t_cmd *cmd, int prev_fd, int pipefd[2]);
 void		run_heredoc_child(char *tmp, char *limiter);
 int			handle_heredoc_status(int status, char *tmp, t_minishell *sh);
 int			process_single_heredoc(t_redir *r, t_minishell *sh);
-int has_unquoted_wildcard(char *s);
-void    wild_add_back(t_wildlist **lst, char *name);
-t_wildlist   *wild_read_directory(void);
-char    *expand_wildcard(char *pattern);
-int wild_match(char *pattern, char *name);
-void    free_split(char **arr);
-size_t	ft_strlen_2(const char *s);
-void    wild_clear(t_wildlist **lst);
-int strcmp_bash(const char *a, const char *b);
-int ft_tolower(int c);
+int			has_unquoted_wildcard(char *s);
+void		wild_add_back(t_wildlist **lst, char *name);
+t_wildlist	*wild_read_directory(void);
+char		*expand_wildcard(char *pattern);
+char		*expand_collect_matches(char *pattern, t_wildlist *files,
+				int *found);
+int			expand_process_one(char *pattern, t_wildlist *tmp, char **result,
+				int *found);
+char		*expand_join_tab(char **tab);
+char		*expand_sort_result(char *result);
+int			wild_match(char *pattern, char *name, int i, int j);
+void		free_split(char **arr);
+size_t		ft_strlen_2(const char *s);
+void		wild_clear(t_wildlist **lst);
+int			strcmp_bash(const char *a, const char *b, int index);
+int			ft_tolower(int c);
+t_ast		*parse_command_ast(t_token **t, t_minishell *sh);
+t_ast		*parse_group_ast(t_token **t, t_minishell *sh);
+t_ast		*parse_pipeline(t_token **t, t_minishell *sh);
+t_ast		*parse_and_or(t_token **t, t_minishell *sh);
+t_ast		*parse_and_or_step(t_ast *left, t_token **t, t_minishell *sh);
+int			exec_ast(t_ast *node, t_minishell *sh);
+t_cmd		*parse_pipeline_segment(t_token **list, t_minishell *sh);
+t_cmd		*parse_pipeline_step(t_token **list, t_minishell *sh, t_cmd **head);
+void		free_ast(t_ast *node);
+void		prepare_heredocs_ast(t_ast *node, t_minishell *sh);
+int			check_parentheses_balance(t_token *t);
+int			check_parentheses_order(t_token *t);
+int			check_paren_local(t_token *t, t_token *prev, int *depth);
+char		*ast_to_string(t_ast *node);
+char		*cmd_to_string(t_cmd *cmd);
+int			is_redir(int type);
+char		*ft_strjoin3(const char *a, const char *b, const char *c);
+t_ast		*parse_and_or_group(t_token **t, t_minishell *sh);
+void		*ft_memcpy(void *dst, const void *src, size_t n);
+int			exec_none_ast(t_ast *node, t_minishell *sh);
+int			exec_group_ast(t_ast *node, t_minishell *sh);
+int			exec_and_or_ast(t_ast *node, t_minishell *sh);
+void		bubble_sort(char **tab);
+t_cmd		*cmd_from_group(t_ast *group);
 
 #endif

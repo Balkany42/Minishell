@@ -110,7 +110,6 @@ int			handle_operator(t_token **list, char *line, int i,
 				t_tokentype type);
 int			skip_spaces(char *s, int i);
 t_tokentype	is_operator(char *s, int i);
-t_token		*token_new(char *value, t_tokentype type);
 int			read_word(t_token **list, char *s, int *i);
 void		add_token_with_quote(t_token **list, char *value,
 				t_tokentype type, t_quote q);
