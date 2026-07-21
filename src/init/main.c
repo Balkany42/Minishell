@@ -6,11 +6,11 @@
 /*   By: megrelli <melchior.grellier42@gmail.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/12 20:36:59 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/20 18:11:28 by megrelli         ###   ########.fr       */
+/*   Updated: 2026/07/21 04:23:16 by megrelli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../inc/minishell.h"
+#include "minishell.h"
 
 int	main(int argc, char **argv, char **envp)
 {

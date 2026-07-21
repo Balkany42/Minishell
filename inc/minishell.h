@@ -6,13 +6,14 @@
 /*   By: megrelli <melchior.grellier42@gmail.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 15:55:54 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/21 01:51:57 by megrelli         ###   ########.fr       */
+/*   Updated: 2026/07/21 04:22:04 by megrelli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
+# include <termios.h>
 # include <signal.h>
 # include <stdio.h>
 # include <stdlib.h>

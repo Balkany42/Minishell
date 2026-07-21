@@ -6,7 +6,7 @@
 /*   By: megrelli <melchior.grellier42@gmail.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/16 04:28:19 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/20 17:41:18 by megrelli         ###   ########.fr       */
+/*   Updated: 2026/07/21 04:18:23 by megrelli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ int	write_heredoc_to(const char *path, const char *limiter)
 		if (!line)
 			return (printf("bash: warning: here-document delimited "
 					"by end-of-file (wanted `%s`)\n", limiter),
-				rl_free_line_state(), close(fd), 1);
+				rl_on_new_line(), close(fd), 1);
 		if (strcmp(line, limiter) == 0)
 		{
 			free(line);

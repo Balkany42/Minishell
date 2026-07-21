@@ -6,11 +6,11 @@
 /*   By: megrelli <melchior.grellier42@gmail.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/16 04:28:19 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/20 18:10:49 by megrelli         ###   ########.fr       */
+/*   Updated: 2026/07/21 04:17:33 by megrelli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../inc/minishell.h"
+#include "minishell.h"
 
 int	write_heredoc_to(const char *path, const char *limiter)
 {
@@ -26,7 +26,7 @@ int	write_heredoc_to(const char *path, const char *limiter)
 		if (!line)
 			return (printf("bash: warning: here-document delimited "
 					"by end-of-file (wanted `%s`)\n", limiter),
-				rl_free_line_state(), close(fd), 1);
+				rl_on_new_line(), close(fd), 1);
 		if (strcmp(line, limiter) == 0)
 		{
 			free(line);

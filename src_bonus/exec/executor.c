@@ -6,7 +6,7 @@
 /*   By: megrelli <melchior.grellier42@gmail.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 01:24:47 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/21 01:56:15 by megrelli         ###   ########.fr       */
+/*   Updated: 2026/07/21 04:06:15 by megrelli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,11 @@ void	executor(t_cmd *cmds, t_minishell *sh)
 	if (!cmds)
 	{
 		sh->exit_status = 1;
+		return ;
+	}
+	if (!cmds->args || !cmds->args[0])
+	{
+		sh->exit_status = 0;
 		return ;
 	}
 	if (!cmds->next)

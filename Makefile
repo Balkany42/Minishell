@@ -6,14 +6,14 @@
 #    By: megrelli <melchior.grellier42@gmail.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/07/20 16:55:12 by megrelli          #+#    #+#              #
-#    Updated: 2026/07/20 18:13:45 by megrelli         ###   ########.fr        #
+#    Updated: 2026/07/21 02:51:40 by megrelli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = minishell
 BONUS_NAME  = minishell_bonus
 
-CFLAGS  = -Wall -Werror -Wextra -Iinclude -Iinclude_bonus -g3
+CFLAGS  = -Wall -Werror -Wextra -Iinclude -Iinc -g3
 Libft   = ./libft/libft.a
 OBJ_DIR = objs
 

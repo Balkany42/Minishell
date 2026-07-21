@@ -6,7 +6,7 @@
 /*   By: megrelli <melchior.grellier42@gmail.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/16 04:30:56 by mgrager           #+#    #+#             */
-/*   Updated: 2026/07/21 01:55:12 by megrelli         ###   ########.fr       */
+/*   Updated: 2026/07/21 04:28:13 by megrelli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,16 @@
 
 static void	run_heredoc_child(char *tmp, char *limiter)
 {
+	int	ret;
+
 	rl_catch_signals = 1;
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_IGN);
-	if (write_heredoc_to(tmp, limiter) < 0)
+	ret = write_heredoc_to(tmp, limiter);
+	if (ret == 1)
 		exit(1);
+	if (ret < 0)
+		exit(2);
 	exit(0);
 }
 
@@ -35,6 +40,7 @@ static int	handle_heredoc_status(int status, char *tmp, t_minishell *sh)
 	if (WEXITSTATUS(status) != 0)
 	{
 		sh->exit_status = 1;
+		sh->heredoc_interrupted = 1;
 		free(tmp);
 		return (0);
 	}
